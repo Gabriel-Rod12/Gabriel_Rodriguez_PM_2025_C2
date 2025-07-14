@@ -1,0 +1,6 @@
+# depslib dependency file v1.0
+1752462160 source:c:\users\gabri\onedrive\desktop\academico\clases\2025-c2\programacion para meca\periodo ii\tarea7\ejercicios\almacenamiento_e_impresion_de_alumnos\main.c
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+
