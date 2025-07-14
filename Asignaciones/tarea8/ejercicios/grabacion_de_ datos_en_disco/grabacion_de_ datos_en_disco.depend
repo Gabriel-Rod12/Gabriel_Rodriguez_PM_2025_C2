@@ -1,0 +1,6 @@
+# depslib dependency file v1.0
+1752464433 source:c:\users\gabri\onedrive\desktop\academico\clases\2025-c2\programacion para meca\periodo ii\tarea8\ejercicios\grabacion_de_ datos_en_disco\main.c
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+
