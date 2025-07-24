@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <ctype.h>
 
 char tablero[8][8] = {
     {'r','n','b','q','k','b','n','r'},
@@ -45,10 +47,71 @@ int identificar_color_pieza(char pieza){
         return 0; // Blanco
     }else if(pieza >= 'a' && pieza <= 'z'){
         return 1; // Negra
-    }else 
-        return 2; // Casilla vacia
+    }else {
+        return 2; // casilla vacia 
+    }
+}
+// por medio de la funcion toupper se puede cambiar un caracter en minuscula a uno en mayuscula, asi si llega una pieza 'p' se convierte en 'P' y no es necesario validar ambas. 
+int identificar_pieza(char tipo_pieza){
+    switch (toupper(tipo_pieza)) {
+        case 'P': return 1; // Peon
+        case 'R': return 2; // Torre
+        case 'N': return 3; // Caballo
+        case 'B': return 4; // Alfil
+        case 'Q': return 5; // Reina
+        case 'K': return 6; // Rey
+        default: return 0; // No es una pieza valida
+    }
+
 }
 
+int movimiento_peon(int fila_origen, int col_origen, int fila_destino, int col_destino, char pieza){
+    int direccion = (pieza == 'P') ? -1 : 1; //Blancas suben, Negras bajan
+    int fila_inicial = (pieza == 'P') ? 6 : 1;
+    int es_blanco = (pieza == 'P');
+    char destino = tablero[fila_destino][col_destino];
+    int delta_fila = fila_destino - fila_origen;
+    int delta_col = col_destino - col_origen;
+    
+    int mover = 0;
+    int promocionar = 0;
+
+    //Avance simple de una casilla
+    if(delta_col == 0 && delta_fila == direccion && destino == ' '){
+        mover = 1;
+    }else if(delta_col == 0 && delta_fila == 2 * direccion && fila_origen == fila_inicial && tablero[fila_origen + direccion][col_origen] == ' ' && destino == ' '){
+        mover = 1;
+    }else if(abs(delta_col) == 1 && delta_fila == direccion && destino != ' ' && identificar_color_pieza(destino) != identificar_color_pieza(pieza)){
+        mover = 1;
+    }
+
+    if(mover){
+        tablero[fila_destino][col_destino] = pieza;
+        tablero[fila_origen][col_origen] = ' ';
+
+        if((es_blanco && fila_destino == 0) || (!es_blanco && fila_destino == 7)){
+            promocionar = 1;
+        }
+    }
+
+    if(promocionar){
+        char nueva_pieza;
+        printf("Peon llega al final! Elige una promocion (Q = Reina  R = Torre  B = Alfil  N = Caballo): ");
+        scanf(" %c", &nueva_pieza);
+        nueva_pieza = toupper(nueva_pieza);
+        switch (nueva_pieza){
+        case 'Q': pieza = es_blanco ? 'Q' : 'q'; break;
+        case 'R': pieza = es_blanco ? 'R' : 'r'; break;
+        case 'B': pieza = es_blanco ? 'B' : 'b'; break;
+        case 'N': pieza = es_blanco ? 'N' : 'n'; break;
+        default:
+            printf("Eleccion no valida. Promocion a reina por defecto.\n");
+            pieza = es_blanco ? 'Q' : 'q';
+        }
+        tablero[fila_destino][col_destino] = pieza;
+    }
+    return mover;
+}
 
 int mover_pieza(char origen_col, char origen_fila_char, char destino_col, char destino_fila_char){
     int fila_origen = numero_a_fila(origen_fila_char);          //Esta seccion convierte todos los valores en string, dados por el usuario
@@ -73,13 +136,24 @@ int mover_pieza(char origen_col, char origen_fila_char, char destino_col, char d
     char destino_pieza = tablero[fila_destino][col_destino];
 
     if(identificar_color_pieza(origen_pieza) == identificar_color_pieza(destino_pieza)){
-        printf("No puedes mover sobre una pieza de tu mismo color!!\n");
+        printf("No puedes moverte sobre una pieza de tu mismo color!!\n");
         return 0;
     }
 
-    // Mover la pieza
-    tablero[fila_destino][col_destino] = pieza;
-    tablero[fila_origen][col_origen] = ' ';
+    int tipo = identificar_pieza(pieza);
+    int movimiento_valido = 0;
+
+    if(tipo == 1){
+        movimiento_valido = movimiento_peon(fila_origen, col_origen, fila_destino, col_destino, pieza);
+        if(!movimiento_valido){
+            printf("Movimiento invalido para esa pieza.\n");
+            return 0;
+        }   
+    }else{
+        // Mover la pieza
+        tablero[fila_destino][col_destino] = pieza;
+        tablero[fila_origen][col_origen] = ' ';
+    }
     return 1;
 }
 
